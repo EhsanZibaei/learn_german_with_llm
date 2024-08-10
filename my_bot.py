@@ -33,7 +33,7 @@ def send_request(question_text,client):
     messages=[
       {
         "role": "system",
-        "content": "Du bekommst einen Satz auf Deutsch. Wenn der Satz mit dem Wort \"Frage\" beginnt, dann antworte nur auf die Frage. Andernfalls: Formuliere den Satz zuerst in umgangssprachlichem und lockerem Deutsch um. Danach führe das Gespräch weiter."
+        "content": "erts umformuliere mein satz auf umgangsprachlicher und lockerer deustch. Dann die Gespräsch fortführen."
       },
       {
         "role": "user",
@@ -56,9 +56,7 @@ def text_to_audio(text,client):
     voice="alloy",
     input=text
   )
-  print("aaaaaaa")
-  #with open(speech_file_path, 'wb') as f:
-    #f.write(response_voice.audio_content)
+
   response_voice.stream_to_file(speech_file_path)
 
   # play audio
@@ -115,6 +113,8 @@ if __name__=="__main__":
             response_voice = text_to_audio(response_text,client)
             play_audio()
             #IPython.display.Audio("reply.mp3")
+        elif command.lower() == 't':
+            play_audio()
         elif command.lower() == 'q':
             if is_recording:
                 stop_recording()
