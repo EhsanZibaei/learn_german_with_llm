@@ -20,7 +20,8 @@ def audio_to_text():
   transcription = client.audio.transcriptions.create(
     model="whisper-1", 
     file=audio_file,
-    response_format="text"
+    response_format="text",
+     language="de"
   )
   print("---------ehsan says: " + transcription)
   return transcription
@@ -33,15 +34,15 @@ def send_request(question_text,client):
     messages=[
       {
         "role": "system",
-        "content": "erts umformuliere mein satz auf umgangsprachlicher und lockerer deustch. Dann die Gespräsch fortführen."
+        "content": "erts umformuliere mein satz auf bayerischer deuscth form. dann die gespräsch fortführen."
       },
       {
         "role": "user",
-        "content": question_text
+        "content": "das ist mein satz " + question_text
       }
     ],
-    temperature=0.7,
-    max_tokens=64,
+    temperature=0.1,
+    max_tokens=94,
     top_p=1
   )
   print ("*********chatgpt says:" + response.choices[0].message.content +"\n")
