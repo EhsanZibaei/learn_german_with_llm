@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Flask App</title>
+    <script>
+        function echoAsked() {
+            var askedText = document.getElementById("asked").value;
+            console.log("answered"); // This will print askedText to the console
+        }
+    </script>
+</head>
+<body>
+    <form method="POST" action="/hello">
+        <label for="asked">You:</label>
+        <input type="text" id="asked" name="asked">
+        <button type="submit">Send</button>
+        <br>
+
+    </form>
+    <br>
+    <h1> Chat history</h1>
+    <p>user said: {{user_input}}</p>
+    <br>
+    <p>chatgpt said: {{gpt_output}}</p>
+
+
+</body>
+</html>
