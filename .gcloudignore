@@ -17,6 +17,7 @@ my_bot.py
 venv/
 .venv/
 .vscode/
+env/__pycache__/
 # Python pycache:
 __pycache__/
 # Ignored by the build system

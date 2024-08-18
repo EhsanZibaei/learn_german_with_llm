@@ -48,7 +48,7 @@ def main_index():
         # gpt_output = send_request(user_input, client)
         # print(f"user has typed: {user_input}")
         file = request.files['audio']
-        file.save("uploads/my_sound.wav")
+        file.save("/tmp/my_sound.wav")
         user_input=audio_to_text()
         gpt_output=send_request(user_input,client)
         gpt_voice = text_to_audio(gpt_output)
@@ -60,7 +60,7 @@ def main_index():
 
 # audio to text function using openai tools
 def audio_to_text():
-    audio_file = open("uploads/my_sound.wav", "rb")
+    audio_file = open("/tmp/my_sound.wav", "rb")
     transcription = client.audio.transcriptions.create(
         model="whisper-1",
         file=audio_file,
@@ -72,7 +72,7 @@ def audio_to_text():
 
 # text to audio function using openai tools
 def text_to_audio(text):
-    speech_file_path = "uploads/chatgpt_sound.mp3"
+    speech_file_path = "/tmp/chatgpt_sound.mp3"
     response_voice = openai.audio.speech.create(
         model="tts-1",
         voice="alloy",
@@ -83,7 +83,7 @@ def text_to_audio(text):
 
 @app.route('/uploads/chatgpt_sound.mp3')
 def serve_audio(filename="chatgpt_sound.mp3"):
-    return send_from_directory('uploads', filename)
+    return send_from_directory('/tmp', filename)
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8080, debug=True)
