@@ -4,27 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Flask App</title>
-    <script>
-        function echoAsked() {
-            var askedText = document.getElementById("asked").value;
-            console.log("answered"); // This will print askedText to the console
-        }
-    </script>
+    
 </head>
 <body>
-    <form method="POST" action="/hello">
-        <label for="asked">You:</label>
-        <input type="text" id="asked" name="asked">
-        <button type="submit">Send</button>
-        <br>
 
-    </form>
     <br>
     <h1> Chat history</h1>
     <p>user said: {{user_input}}</p>
     <br>
     <p>chatgpt said: {{gpt_output}}</p>
+    <br>
+    <h1>Record and Upload Audio</h1>
+    <button id="startBtn">Start Recording</button>
+    <button id="stopBtn" disabled>Stop Recording</button>
 
-
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        <input type="file" id="audioFile" name="audio" accept="audio/*" hidden required>
+        <button type="submit" disabled id="uploadBtn">Upload Recording</button>
+    </form>
+    <script src="static/js/recorder.js"></script>
 </body>
 </html>
