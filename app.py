@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, render_template
+from flask import Flask, render_template_string, render_template, send_from_directory
 from flask import request
 import os
 from env.openai_key import API_KEY
@@ -47,27 +47,43 @@ def main_index():
         # user_input = request.form.get('asked')
         # gpt_output = send_request(user_input, client)
         # print(f"user has typed: {user_input}")
-        print("wow")
         file = request.files['audio']
         file.save("uploads/my_sound.wav")
         user_input=audio_to_text()
-
+        gpt_output=send_request(user_input,client)
+        gpt_voice = text_to_audio(gpt_output)
 
     if request.method=='GET':
         user_input = "GET1"
         gpt_output = "GET2"
     return render_template('index.html', user_input=user_input, gpt_output = gpt_output)
 
+# audio to text function using openai tools
 def audio_to_text():
     audio_file = open("uploads/my_sound.wav", "rb")
-    transcription = openai.Audio.transcribe(
+    transcription = client.audio.transcriptions.create(
         model="whisper-1",
         file=audio_file,
         response_format="text",
         language="de"
     )
-    print("---------ehsan says: " + transcription['text'])
-    return transcription['text']
+    print("---------ehsan says: " + transcription)
+    return transcription
+
+# text to audio function using openai tools
+def text_to_audio(text):
+    speech_file_path = "uploads/chatgpt_sound.mp3"
+    response_voice = openai.audio.speech.create(
+        model="tts-1",
+        voice="alloy",
+        input=text
+    )
+    response_voice.stream_to_file(speech_file_path)
+    # return speech_file_path
+
+@app.route('/uploads/chatgpt_sound.mp3')
+def serve_audio(filename="chatgpt_sound.mp3"):
+    return send_from_directory('uploads', filename)
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8080, debug=True)

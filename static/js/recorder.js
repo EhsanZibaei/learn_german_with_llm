@@ -44,3 +44,19 @@ uploadForm.addEventListener('submit', (event) => {
     }
     //window.location.reload();
 });
+
+document.getElementById('fetchAudioBtn').addEventListener('click', async () => {
+    try {
+        const response = await fetch('uploads/chatgpt_sound.mp3'); // Update the filename as needed
+        if (!response.ok) throw new Error('Network response was not ok.');
+        
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        
+        const audioPlayer = document.getElementById('audioPlayer');
+        audioPlayer.src = audioUrl;
+        audioPlayer.play();
+    } catch (error) {
+        console.error('Error fetching the audio file:', error);
+    }
+});

@@ -7,7 +7,11 @@
     
 </head>
 <body>
-
+    <form id="text_form" method="POST" action="/">
+        <label for="asked">You:</label>
+        <input type="text" id="asked" name="asked">
+        <button type="submit">Send</button>
+    </form>
     <br>
     <h1> Chat history</h1>
     <p>user said: {{user_input}}</p>
@@ -22,6 +26,12 @@
         <input type="file" id="audioFile" name="audio" accept="audio/*" hidden required>
         <button type="submit" disabled id="uploadBtn">Upload Recording</button>
     </form>
+    <button id="fetchAudioBtn">Fetch and Play Audio</button>
+    <!-- Audio Element -->
+    <audio id="audioPlayer" controls>
+        Your browser does not support the audio element.
+    </audio>
     <script src="static/js/recorder.js"></script>
+
 </body>
 </html>
