@@ -43,6 +43,9 @@ def main_index():
     #return render_template('index.html')
     user_input = ""
     gpt_output = ""
+    if request.method=='GET':
+        user_input = "GET1"
+        gpt_output = "GET2"
     if request.method=='POST':
         if request.form:
           user_input = request.form.get('asked')
@@ -51,13 +54,12 @@ def main_index():
         if request.files:
           file = request.files['audio']
           file.save("/tmp/my_sound.wav")
+          
           user_input=audio_to_text()
           gpt_output=send_request(user_input,client)
-          gpt_voice = text_to_audio(gpt_output)
+          text_to_audio(gpt_output)
 
-    if request.method=='GET':
-        user_input = "GET1"
-        gpt_output = "GET2"
+
     return render_template('index.html', user_input=user_input, gpt_output = gpt_output)
 
 # audio to text function using openai tools
@@ -75,13 +77,12 @@ def audio_to_text():
 # text to audio function using openai tools
 def text_to_audio(text):
     speech_file_path = "/tmp/chatgpt_sound.mp3"
-    response_voice = openai.audio.speech.create(
+    with client.audio.speech.with_streaming_response.create(
         model="tts-1",
         voice="alloy",
-        input=text
-    )
-    response_voice.stream_to_file(speech_file_path)
-    # return speech_file_path
+        input=text,
+    ) as response:
+        response.stream_to_file(speech_file_path)
 
 @app.route('/uploads/chatgpt_sound.mp3')
 def serve_audio(filename="chatgpt_sound.mp3"):

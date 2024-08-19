@@ -17,7 +17,7 @@ startBtn.addEventListener('click', async () => {
         audioChunks.push(event.data);
     };
 
-    mediaRecorder.onstop = () => {
+    mediaRecorder.onstop = async () => {
 
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
@@ -25,6 +25,29 @@ startBtn.addEventListener('click', async () => {
         dataTransfer.items.add(audioFile);
         audioFileInput.files = dataTransfer.files;
         uploadBtn.disabled = false;
+        const formData = new FormData();
+        formData.append('audio', audioFile);
+        // document.getElementById("uploadForm").submit()
+
+        const response = await fetch('/', {
+            method: 'POST',
+            body: formData,
+        });
+        if (response.ok) {
+            // Trigger the click only after the POST request has returned successfully
+            const data = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, 'text/html'); // Parse the HTML string
+            // const pElement = doc.querySelector('p'); 
+            console.log('Content of <p> element:', doc.getElementById("user_updated")); // Access the content of the <p> element
+            document.getElementById("user_updated").innerHTML = doc.getElementById("user_updated").innerHTML;
+            document.getElementById("gpt_updated").innerHTML = doc.getElementById("gpt_updated").innerHTML;
+
+            document.getElementById("fetchAudioBtn").click();
+        } else {
+            console.error('Upload failed', response.statusText);
+        }
+
     };
 
     startBtn.disabled = true;

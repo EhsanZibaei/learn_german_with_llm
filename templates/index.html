@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Flask App</title>
-    
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+
 </head>
 <body>
     <form id="text_form" method="POST" action="/">
@@ -14,9 +16,9 @@
     </form>
     <br>
     <h1> Chat history</h1>
-    <p>user said: {{user_input}}</p>
+    <p id="user_updated">user said: {{user_input}}</p>
     <br>
-    <p>chatgpt said: {{gpt_output}}</p>
+    <p id="gpt_updated">chatgpt said: {{gpt_output}}</p>
     <br>
     <h1>Record and Upload Audio</h1>
     <button id="startBtn">Start Recording</button>
