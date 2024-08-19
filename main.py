@@ -44,14 +44,16 @@ def main_index():
     user_input = ""
     gpt_output = ""
     if request.method=='POST':
-        # user_input = request.form.get('asked')
-        # gpt_output = send_request(user_input, client)
-        # print(f"user has typed: {user_input}")
-        file = request.files['audio']
-        file.save("/tmp/my_sound.wav")
-        user_input=audio_to_text()
-        gpt_output=send_request(user_input,client)
-        gpt_voice = text_to_audio(gpt_output)
+        if request.form:
+          user_input = request.form.get('asked')
+          gpt_output = send_request(user_input, client)
+          print(f"user has typed: {user_input}")
+        if request.files:
+          file = request.files['audio']
+          file.save("/tmp/my_sound.wav")
+          user_input=audio_to_text()
+          gpt_output=send_request(user_input,client)
+          gpt_voice = text_to_audio(gpt_output)
 
     if request.method=='GET':
         user_input = "GET1"
@@ -67,7 +69,7 @@ def audio_to_text():
         response_format="text",
         language="de"
     )
-    print("---------ehsan says: " + transcription)
+    # print("---------ehsan says: " + transcription)
     return transcription
 
 # text to audio function using openai tools
