@@ -4,27 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Flask App</title>
-    <script>
-        function echoAsked() {
-            var askedText = document.getElementById("asked").value;
-            console.log("answered"); // This will print askedText to the console
-        }
-    </script>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+
 </head>
 <body>
-    <form method="POST" action="/hello">
+    <form id="text_form" method="POST" action="/">
         <label for="asked">You:</label>
         <input type="text" id="asked" name="asked">
         <button type="submit">Send</button>
-        <br>
-
     </form>
     <br>
     <h1> Chat history</h1>
-    <p>user said: {{user_input}}</p>
+    <p id="user_updated">user said: {{user_input}}</p>
     <br>
-    <p>chatgpt said: {{gpt_output}}</p>
+    <p id="gpt_updated">chatgpt said: {{gpt_output}}</p>
+    <br>
+    <h1>Record and Upload Audio</h1>
+    <button id="startBtn">Start Recording</button>
+    <button id="stopBtn" disabled>Stop Recording</button>
 
+<br>
+<br>
+<br>
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        <input type="file" id="audioFile" name="audio" accept="audio/*" hidden required>
+        <br>
+        <button type="submit" disabled id="uploadBtn">Upload Recording</button>
+    </form>
+    <br>
+    <button id="fetchAudioBtn">Fetch and Play Audio</button>
+    <!-- Audio Element -->
+    <audio id="audioPlayer" controls>
+        Your browser does not support the audio element.
+    </audio>
+    <script src="{{ url_for('static', filename='js/recorder2.js') }}"></script>
 
 </body>
 </html>
