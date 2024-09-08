@@ -5,3 +5,4 @@ env/__pycahce__/
 venv/
 .vscode/
 uploads/
+env/openai_key.py
