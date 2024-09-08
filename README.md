@@ -1,6 +1,3 @@
-Here's a revised and improved version of your README file:
-
----
 
 # Flask Web Application
 
@@ -65,6 +62,3 @@ This is a simple Flask web application that you can run locally on your machine.
    deactivate
    ```
 
----
-
-This version improves the structure and clarity, ensuring steps are easy to follow while also making the commands more platform-inclusive.
