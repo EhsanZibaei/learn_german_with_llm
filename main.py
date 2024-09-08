@@ -15,31 +15,34 @@ client = openai.OpenAI()
 
 
 # send chatgpt request
-def send_request(question_text,client):
+def send_request(question_text, client, system_content, temperature=0.1, max_tokens=70, top_p=1):
 
   response = client.chat.completions.create(
     model="gpt-4",
     messages=[
       {
         "role": "system",
-        "content": "erts umformuliere mein satz auf mutterschprachlier deuscth form. dann die gespräsch fortführen."
+        "content": system_content
       },
       {
         "role": "user",
-        "content": "das ist mein satz " + question_text
+        "content": "das ist mein satz: " + question_text
       }
     ],
-    temperature=0.1,
-    max_tokens=94,
-    top_p=1
+    temperature=temperature,
+    max_tokens=max_tokens,
+    top_p=top_p
   )
-  print ("*********chatgpt says:" + response.choices[0].message.content +"\n")
+  #print ("*********chatgpt says:" + response.choices[0].message.content +"\n")
   return response.choices[0].message.content
 
-
-
 @app.route('/', methods=['GET', 'POST'])
-def main_index():
+def choose_task():
+   return render_template('start.html')
+
+# endpoint for correcting and proceeding
+@app.route('/correcting_proceeding', methods=['GET', 'POST'])
+def correct_proceed():
     #return render_template('index.html')
     user_input = ""
     gpt_output = ""
@@ -49,17 +52,41 @@ def main_index():
     if request.method=='POST':
         if request.form:
           user_input = request.form.get('asked')
-          gpt_output = send_request(user_input, client)
+          system_content = "erts umformuliere mein satz auf mutterschprachlier deuscth form. dann die gespräsch fortführen."
+          gpt_output = send_request(user_input, client, system_content)
           print(f"user has typed: {user_input}")
         if request.files:
           file = request.files['audio']
           file.save("/tmp/my_sound.wav")
           
           user_input=audio_to_text()
-          gpt_output=send_request(user_input,client)
+          system_content = "erts umformuliere mein satz auf mutterschprachlier deuscth form. dann die gespräsch fortführen."
+          gpt_output = send_request(user_input, client, system_content)
           text_to_audio(gpt_output)
+    return render_template('index.html', user_input=user_input, gpt_output = gpt_output)
 
-
+#endpoint for only correcting
+@app.route('/correcting', methods=['GET', 'POST'])
+def correct():
+    user_input = ""
+    gpt_output = ""
+    if request.method=='GET':
+        user_input = "GET1"
+        gpt_output = "GET2"
+    if request.method=='POST':
+        if request.form:
+          user_input = request.form.get('asked')
+          system_content = "nur umformuliere mein satz auf mutterschprachlier und umgangssprachlicher deuscth form"
+          gpt_output = send_request(user_input, client, system_content)
+          print(f"user has typed: {user_input}")
+        if request.files:
+          file = request.files['audio']
+          file.save("/tmp/my_sound.wav")
+          
+          user_input=audio_to_text()
+          system_content = "nur umformuliere mein satz auf umgangssprachlicher deuscth form"
+          gpt_output = send_request(user_input, client, system_content)
+          text_to_audio(gpt_output)
     return render_template('index.html', user_input=user_input, gpt_output = gpt_output)
 
 # audio to text function using openai tools

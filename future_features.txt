@@ -1,0 +1,3 @@
+1. speaking should have two parts: correcting, correcting + proceed
+2. the chat history should be written
+3. parts of text should be highlightable and easy recorded for future review

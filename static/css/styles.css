@@ -1,0 +1,30 @@
+.container {
+    border: 1px solid black; /* Border around the container */
+    padding: 20px;
+    width: 400px; /* Set width for demonstration */
+}
+
+.range-input {
+    display: block; /* Make each input block-level for vertical spacing */
+    margin-bottom: 25px; /* Space between range inputs */
+}
+
+.range-group {
+    margin-bottom: 20px; /* Space between each range input group */
+}
+
+.range-input:last-child {
+    margin-bottom: 0; /* Remove margin from the last input */
+}
+
+label, input, output {
+    display: block; /* Ensure elements are block-level to control vertical spacing */
+}
+
+output {
+    margin-top: 5px; /* Space between the range input and its output */
+}
+
+.box {
+    border: 2px dashed blue; /* Specific border for elements with class 'box' */
+}

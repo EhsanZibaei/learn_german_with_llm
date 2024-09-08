@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Flask App</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/recorder2.js') }}"></script>
 </head>
 <body>
     <form id="text_form" method="POST" action="/">
@@ -30,15 +30,31 @@
     <form id="uploadForm" method="POST" enctype="multipart/form-data">
         <input type="file" id="audioFile" name="audio" accept="audio/*" hidden required>
         <br>
-        <button type="submit" disabled id="uploadBtn">Upload Recording</button>
+        <button style="display: none;" type="submit" disabled id="uploadBtn">Upload Recording</button>
     </form>
     <br>
-    <button id="fetchAudioBtn">Fetch and Play Audio</button>
+    <button style="display: none;" id="fetchAudioBtn">Fetch and Play Audio</button>
     <!-- Audio Element -->
     <audio id="audioPlayer" controls>
         Your browser does not support the audio element.
     </audio>
-    <script src="{{ url_for('static', filename='js/recorder2.js') }}"></script>
 
+    <div class="container">
+        <div class="range-group">
+        <label for="rangeInput">creativity of response: </label>
+        <input type="range" id="rangeInput" name="volume" min="0" max="100" value="50" oninput="this.nextElementSibling.value = this.value">
+        <output>50</output>
+        </div>
+        <div class="range-group">
+        <label for="rangeInput">length of response: </label>
+        <input type="range" id="rangeInput" name="volume" min="0" max="100" value="50" oninput="this.nextElementSibling.value = this.value">
+        <output>50</output>
+        </div>
+        <div class="range-group">
+        <label for="rangeInput">predictability of response: </label>
+        <input type="range" id="rangeInput" name="volume" min="0" max="100" value="50" oninput="this.nextElementSibling.value = this.value">
+        <output>50</output>
+        </div>
+    </div>
 </body>
 </html>

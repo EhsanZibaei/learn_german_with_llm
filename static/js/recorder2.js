@@ -29,7 +29,7 @@ startBtn.addEventListener('click', async () => {
         formData.append('audio', audioFile);
         // document.getElementById("uploadForm").submit()
 
-        const response = await fetch('/', {
+        const response = await fetch('/correcting', {
             method: 'POST',
             body: formData,
         });
@@ -82,4 +82,19 @@ document.getElementById('fetchAudioBtn').addEventListener('click', async () => {
     } catch (error) {
         console.error('Error fetching the audio file:', error);
     }
+});
+
+function updateOuput(rangeInput, outputElement){
+    outputElement.textContent = rangeInput.value;
+}
+
+const rangeInputs = document.querySelectorAll('input[type="range"]');
+const outputs = document.querySelectorAll('output');
+
+rangeInputs.forEach((rangeInput, index) => {
+    const output = outputs[index];
+
+    updateOutput(rangeInput, output);
+
+    rangeInput.addEventListener('input', () => updateOutput(rangeInput, output));
 });
