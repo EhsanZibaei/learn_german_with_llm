@@ -1,7 +1,8 @@
 
 # Flask Web Application
 
-This is a simple Flask web application that you can run locally on your machine.
+This is a simple Flask web application that corrects german sentences grammatically. It can be used for improving speaking skills. 
+To run the web app locally on your machine:
 
 ## Prerequisites
 
