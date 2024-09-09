@@ -28,3 +28,9 @@ output {
 .box {
     border: 2px dashed blue; /* Specific border for elements with class 'box' */
 }
+
+.containerLanguage input {
+    border: 1px solid black;
+    display: inline-block;
+    margin-left: 2rem;
+  }

@@ -12,7 +12,6 @@ startBtn.addEventListener('click', async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaRecorder = new MediaRecorder(stream);
     mediaRecorder.start();
-    console.log("i coul dcome here");
     mediaRecorder.ondataavailable = (event) => {
         audioChunks.push(event.data);
     };
@@ -27,9 +26,15 @@ startBtn.addEventListener('click', async () => {
         uploadBtn.disabled = false;
         const formData = new FormData();
         formData.append('audio', audioFile);
+
+        // update the user chosen setting
+        formData.append('temperature', document.getElementById('creativity').value);
+        formData.append('max_tokens', document.getElementById('length').value);
+        formData.append('top_p', document.getElementById('predictability').value);
+
         // document.getElementById("uploadForm").submit()
 
-        const response = await fetch('/correcting', {
+        const response = await fetch('/', {
             method: 'POST',
             body: formData,
         });
@@ -82,19 +87,4 @@ document.getElementById('fetchAudioBtn').addEventListener('click', async () => {
     } catch (error) {
         console.error('Error fetching the audio file:', error);
     }
-});
-
-function updateOuput(rangeInput, outputElement){
-    outputElement.textContent = rangeInput.value;
-}
-
-const rangeInputs = document.querySelectorAll('input[type="range"]');
-const outputs = document.querySelectorAll('output');
-
-rangeInputs.forEach((rangeInput, index) => {
-    const output = outputs[index];
-
-    updateOutput(rangeInput, output);
-
-    rangeInput.addEventListener('input', () => updateOutput(rangeInput, output));
 });

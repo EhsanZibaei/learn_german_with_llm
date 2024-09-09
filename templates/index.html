@@ -6,7 +6,7 @@
     <title>My Flask App</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <script src="{{ url_for('static', filename='js/recorder2.js') }}"></script>
+    
 </head>
 <body>
     <form id="text_form" method="POST" action="/">
@@ -38,23 +38,30 @@
     <audio id="audioPlayer" controls>
         Your browser does not support the audio element.
     </audio>
+    <br>
+    <div class="containerLanguage">
+        <input type="checkbox" checked>colloquial
+        <input type="checkbox">native
+        <input type="checkbox">business formal
+    </div>
 
     <div class="container">
         <div class="range-group">
         <label for="rangeInput">creativity of response: </label>
-        <input type="range" id="rangeInput" name="volume" min="0" max="100" value="50" oninput="this.nextElementSibling.value = this.value">
-        <output>50</output>
+        <input type="range" id="creativity" name="volume" min="0" max="1" step="0.01" value="0.5" oninput="this.nextElementSibling.value = this.value">
+        <output>0.1</output>
         </div>
         <div class="range-group">
         <label for="rangeInput">length of response: </label>
-        <input type="range" id="rangeInput" name="volume" min="0" max="100" value="50" oninput="this.nextElementSibling.value = this.value">
+        <input type="range" id="length" name="volume" min="0" max="100" value="50" oninput="this.nextElementSibling.value = this.value">
         <output>50</output>
         </div>
         <div class="range-group">
         <label for="rangeInput">predictability of response: </label>
-        <input type="range" id="rangeInput" name="volume" min="0" max="100" value="50" oninput="this.nextElementSibling.value = this.value">
-        <output>50</output>
+        <input type="range" id="predictability" name="volume" min="0" max="1" step="0.01" value="0.5" oninput="this.nextElementSibling.value = this.value">
+        <output>1</output>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='js/recorder2.js') }}"></script>
 </body>
 </html>
