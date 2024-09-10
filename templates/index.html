@@ -9,7 +9,7 @@
     
 </head>
 <body>
-    <form id="text_form" method="POST" action="/">
+    <form id="text_form" style="display: none;" method="POST" action="/">
         <label for="asked">You:</label>
         <input type="text" id="asked" name="asked">
         <button type="submit">Send</button>
@@ -24,14 +24,22 @@
     <button id="startBtn">Start Recording</button>
     <button id="stopBtn" disabled>Stop Recording</button>
 
-<br>
-<br>
-<br>
+    <br>
+    <br>
+    <br>
     <form id="uploadForm" method="POST" enctype="multipart/form-data">
-        <input type="file" id="audioFile" name="audio" accept="audio/*" hidden required>
+        <input type="file" style="display: none;" id="audioFile" name="audio" accept="audio/*" hidden required>
         <br>
         <button style="display: none;" type="submit" disabled id="uploadBtn">Upload Recording</button>
     </form>
+    
+    <div class="chooseMonologueDialogue" id="monologueDialogue">
+        <input type="radio" id="option1" name="mono" value="monologue" checked>
+        <label for="option1">only correction</label><br>
+        
+        <input type="radio"  id="option2" name="mono" value="dialogue">
+        <label for="option2">correction+conversation</label><br>
+    </div>
     <br>
     <button style="display: none;" id="fetchAudioBtn">Fetch and Play Audio</button>
     <!-- Audio Element -->
@@ -39,16 +47,24 @@
         Your browser does not support the audio element.
     </audio>
     <br>
-    <div class="containerLanguage">
-        <input type="checkbox" checked>colloquial
-        <input type="checkbox">native
-        <input type="checkbox">business formal
+
+
+    <div class="containerLanguage" id="radio-group">
+        <input type="radio" id="option1" name="choice" value="Umgangsprachich">
+        <label for="option1">Umgangsprachich</label><br>
+        
+        <input type="radio"  id="option2" name="choice" value="muttersprachlich" checked>
+        <label for="option2">muttersprachlich</label><br>
+
+        <input type="radio" id="option3" name="choice" value="Geschäftssprachlich">
+        <label for="option3">Geschäftssprachlich</label><br>
+        
     </div>
 
     <div class="container">
         <div class="range-group">
-        <label for="rangeInput">creativity of response: </label>
-        <input type="range" id="creativity" name="volume" min="0" max="1" step="0.01" value="0.5" oninput="this.nextElementSibling.value = this.value">
+        <label for="rangeInput">creativity of response: how much imagination and surprise GPT adds to its answers</label>
+        <input type="range" id="creativity" name="volume" min="0" max="1" step="0.01" value="0.1" oninput="this.nextElementSibling.value = this.value">
         <output>0.1</output>
         </div>
         <div class="range-group">
@@ -57,11 +73,12 @@
         <output>50</output>
         </div>
         <div class="range-group">
-        <label for="rangeInput">predictability of response: </label>
-        <input type="range" id="predictability" name="volume" min="0" max="1" step="0.01" value="0.5" oninput="this.nextElementSibling.value = this.value">
+        <label for="rangeInput">predictability of response: decides how many different possible answers GPT should consider when responding</label>
+        <input type="range" id="predictability" name="volume" min="0" max="1" step="0.01" value="1" oninput="this.nextElementSibling.value = this.value">
         <output>1</output>
         </div>
     </div>
+
     <script src="{{ url_for('static', filename='js/recorder2.js') }}"></script>
 </body>
 </html>

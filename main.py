@@ -52,11 +52,13 @@ def update_index():
     
     if request.form:
       # user_input = request.form.get('asked')
-      system_content = "erts umformuliere mein satz auf mutterschprachlier deuscth form. dann die gespräsch fortführen."
+      # system_content = "erts umformuliere mein satz auf mutterschprachlier deuscth form. dann die gespräsch fortführen."
       temperature = request.form.get('temperature', type=float)
       max_tokens = request.form.get('max_tokens', type=int)
       top_p = request.form.get('top_p', type=float)
-      gpt_output = send_request(user_input, client, system_content, temperature, max_tokens, top_p)
+      # gpt_output = send_request(user_input, client, system_content, temperature, max_tokens, top_p)
+      languageType = request.form.get('language', type=str)
+      respondType = request.form.get('respondMethod', type=str)
       print(f"user has typed: {user_input}")
 
     if request.files:
@@ -64,10 +66,15 @@ def update_index():
       file.save("/tmp/my_sound.wav")
       
       user_input=audio_to_text()
-      system_content = "erts umformuliere mein satz auf mutterschprachlier deuscth form. dann die gespräsch fortführen."
-      gpt_output = send_request(user_input, client, system_content)
+      if respondType=='monologue':
+        system_content = f"nur Formuliere meinen Satz auf sehr {languageType} deuscth form."
+      elif respondType == 'dialogue':
+        system_content = f"Formuliere meinen Satz auf sehr {languageType} deuscth form. dann die gespräsch fortführen."
+
+      gpt_output = send_request(user_input, client, system_content, temperature, max_tokens, top_p)
       text_to_audio(gpt_output)
     return render_template('index.html', user_input=user_input, gpt_output = gpt_output)
+
 
 # audio to text function using openai tools
 def audio_to_text():

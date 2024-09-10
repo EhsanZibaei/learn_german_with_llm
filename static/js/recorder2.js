@@ -27,10 +27,33 @@ startBtn.addEventListener('click', async () => {
         const formData = new FormData();
         formData.append('audio', audioFile);
 
-        // update the user chosen setting
+        // update the three gpt parameters chosen by user
         formData.append('temperature', document.getElementById('creativity').value);
         formData.append('max_tokens', document.getElementById('length').value);
         formData.append('top_p', document.getElementById('predictability').value);
+
+        // update the language type
+        const radioDiv = document.getElementById('radio-group');
+        const radios = radioDiv.querySelectorAll('input[type="radio"]');
+        let selectLanguage;
+        radios.forEach( radio => {
+            if (radio.checked){
+                selectLanguage = radio.value;
+            }
+        });
+        formData.append('language', selectLanguage);
+
+        // update the monologue or dialogue
+        const howRespond = document.getElementById('monologueDialogue');
+        const respondTypes = howRespond.querySelectorAll('input[type="radio"]');
+        let respondMethod;
+        respondTypes.forEach( respondtype => {
+            if (respondtype.checked){
+                respondMethod = respondtype.value;
+            }
+        });
+        formData.append('respondMethod', respondMethod);
+
 
         // document.getElementById("uploadForm").submit()
 
