@@ -19,7 +19,7 @@ startBtn.addEventListener('click', async () => {
         console.log("MediaRecorder stopped after 2 seconds.");
         startBtn.disabled = false;
         stopBtn.disabled = true;
-        }, 10000);
+        }, 30000);
 
     mediaRecorder.ondataavailable = (event) => {
         audioChunks.push(event.data);

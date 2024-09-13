@@ -66,10 +66,15 @@ def update_index():
       file.save("/tmp/my_sound.wav")
       
       user_input=audio_to_text()
-      if respondType=='monologue':
-        system_content = f"nur Formuliere meinen Satz auf sehr {languageType} deuscth form."
-      elif respondType == 'dialogue':
-        system_content = f"Formuliere meinen Satz auf sehr {languageType} deuscth form. dann die gespräsch fortführen."
+      if user_input.split(' ')[0] != 'Frage,':
+        if respondType=='monologue':
+          system_content = f"nur Formuliere meinen Satz auf sehr {languageType} deuscth form."
+          
+
+        elif respondType == 'dialogue':
+          system_content = f"Formuliere meinen Satz auf sehr {languageType} deuscth form. Danach fahre bitte mit dem Gespräch fort"
+      else:
+          system_content = user_input
 
       gpt_output = send_request(user_input, client, system_content, temperature, max_tokens, top_p)
       text_to_audio(gpt_output)
