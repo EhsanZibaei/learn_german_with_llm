@@ -66,7 +66,7 @@ def update_index():
       file.save("/tmp/my_sound.wav")
       
       user_input=audio_to_text()
-      if user_input.split(' ')[0] != 'Frage,':
+      if respondType != 'answer':
         if respondType=='monologue':
           system_content = f"nur Formuliere meinen Satz auf sehr {languageType} deuscth form."
           

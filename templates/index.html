@@ -35,10 +35,13 @@
     
     <div class="chooseMonologueDialogue" id="monologueDialogue">
         <input type="radio" id="option1" name="mono" value="monologue" checked>
-        <label for="option1">only correction</label><br>
+        <label for="option1">correction</label><br>
         
         <input type="radio"  id="option2" name="mono" value="dialogue">
         <label for="option2">correction+conversation</label><br>
+
+        <input type="radio"  id="option2" name="mono" value="answer">
+        <label for="option2">conversation</label><br>
     </div>
     <br>
     <button style="display: none;" id="fetchAudioBtn">Fetch and Play Audio</button>
@@ -79,6 +82,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/recorder3.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/recorder4.js') }}"></script>
 </body>
 </html>
