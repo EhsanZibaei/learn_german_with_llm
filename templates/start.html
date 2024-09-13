@@ -8,10 +8,13 @@
 
 </head>
 <body>
-    <button onclick="window.location.href='/correcting';">
-        Correct my sentence
-    </button>
-    <button onclick="window.location.href='/correcting_proceeding';">
-        Correct my sentence and proceed
-    </button>
+    <video id="video" width="320" height="240" autoplay></video>
+    <button id="capture">Capture Photo</button>
+    <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+    <img id="photo" src="#" alt="Captured Image" style="display:none;"/>
+
+    <form id="upload-form" action="/upload" method="POST" enctype="multipart/form-data"></form>
+        <input type="file" id="file-input" name="photo" style="display:none;">
+        <button type="submit">Upload photo to recieve three facts</button>
+    <script src="{{ url_for('static', filename='js/image_processing.js') }}"></script>
 </body>
