@@ -14,19 +14,19 @@ startBtn.addEventListener('click', async () => {
     mediaRecorder.start();
 
     // Stop recording after 30 seconds (30000 ms)
-    timeoutId = setTimeout(() => {
-        mediaRecorder.stop();
-        console.log("MediaRecorder stopped after 2 seconds.");
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
-        }, 30000);
+    // timeoutId = setTimeout(() => {
+    //     mediaRecorder.stop();
+    //     console.log("MediaRecorder stopped after 2 seconds.");
+    //     startBtn.disabled = false;
+    //     stopBtn.disabled = true;
+    //     }, 30000);
 
     mediaRecorder.ondataavailable = (event) => {
         audioChunks.push(event.data);
     };
 
     mediaRecorder.onstop = async () => {
-        clearTimeout(timeoutId);
+        // clearTimeout(timeoutId);
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
         const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
         const dataTransfer = new DataTransfer();

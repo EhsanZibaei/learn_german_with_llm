@@ -5,8 +5,7 @@ from env.openai_key import API_KEY
 import openai
 from openai import OpenAI
 
-app = Flask(__name__)
-
+app = Flask(__name__, static_folder='static')
 os.environ["OPENAI_API_KEY"] = API_KEY
 OpenAI.api_key = os.getenv("OPENAI_API_KEY")
 MODEL_NAME = "gpt-4o"
