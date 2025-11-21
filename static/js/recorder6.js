@@ -28,64 +28,11 @@ const styleLabels = {
     farsi: { colloquial: 'محاوره‌ای', native: 'روان', business: 'رسمی', minimal: 'نزدیک‌ترین شکل صحیح' }
 };
 
-const statusMessages = {
-    german: {
-        clickToStart: 'Klicken Sie zum Starten',
-        waiting: '🎤 Warten auf lautes Sprechen...',
-        recording: '🗣️ Aufnahme... Sprechen Sie deutlich!',
-        recordingLevel: '🗣️ Aufnahme... (Pegel: {level})',
-        silenceDetected: '⏳ Stille erkannt, warte 2s...',
-        processing: '📤 Verarbeite Ihre Anfrage...',
-        sending: '📤 Sende an Server...',
-        waitingAI: '🤖 Warte auf KI-Antwort...',
-        playing: '🔊 Spiele Antwort ab...',
-        error: '❌ Fehler - Klicken Sie zum erneuten Versuchen',
-        micDenied: 'Mikrofonzugriff verweigert'
-    },
-    english: {
-        clickToStart: 'Click to start',
-        waiting: '🎤 Waiting for you to speak loudly...',
-        recording: '🗣️ Recording... Speak clearly!',
-        recordingLevel: '🗣️ Recording... (level: {level})',
-        silenceDetected: '⏳ Silence detected, waiting 2s...',
-        processing: '📤 Processing your request...',
-        sending: '📤 Sending to server...',
-        waitingAI: '🤖 Waiting for AI response...',
-        playing: '🔊 Playing response...',
-        error: '❌ Error - Click to try again',
-        micDenied: 'Microphone access denied'
-    },
-    farsi: {
-        clickToStart: 'برای شروع کلیک کنید',
-        waiting: '🎤 منتظر صحبت بلند شما...',
-        recording: '🗣️ در حال ضبط... واضح صحبت کنید!',
-        recordingLevel: '🗣️ در حال ضبط... (سطح: {level})',
-        silenceDetected: '⏳ سکوت تشخیص داده شد، ۲ ثانیه صبر کنید...',
-        processing: '📤 در حال پردازش درخواست شما...',
-        sending: '📤 در حال ارسال به سرور...',
-        waitingAI: '🤖 منتظر پاسخ هوش مصنوعی...',
-        playing: '🔊 در حال پخش پاسخ...',
-        error: '❌ خطا - برای تلاش مجدد کلیک کنید',
-        micDenied: 'دسترسی به میکروفون رد شد'
-    }
-};
-
-let currentLang = 'german';
-
-function getStatus(key, replacements = {}) {
-    let msg = statusMessages[currentLang][key];
-    for (const [k, v] of Object.entries(replacements)) {
-        msg = msg.replace(`{${k}}`, v);
-    }
-    return msg;
-}
-
 langBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         langBtns.forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         const lang = btn.dataset.lang;
-        currentLang = lang;
         selectedLanguageInput.value = lang;
         
         // Update style labels based on language
@@ -93,11 +40,6 @@ langBtns.forEach(btn => {
         document.getElementById('styleLabel2').textContent = styleLabels[lang].native;
         document.getElementById('styleLabel3').textContent = styleLabels[lang].business;
         document.getElementById('styleLabel4').textContent = styleLabels[lang].minimal;
-        
-        // Update status indicator if not actively listening
-        if (!isListening) {
-            statusIndicator.textContent = getStatus('clickToStart');
-        }
     });
 });
 
@@ -123,12 +65,12 @@ async function startListening() {
         isProcessing = false;
         toggleBtn.textContent = '🔴 Stop Chat';
         toggleBtn.classList.add('active');
-        statusIndicator.textContent = getStatus('waiting');
+        statusIndicator.textContent = '🎤 Waiting for you to speak loudly...';
         
         detectSpeechAndSilence();
     } catch (err) {
         console.error('Error accessing microphone:', err);
-        statusIndicator.textContent = getStatus('micDenied');
+        statusIndicator.textContent = 'Microphone access denied';
     }
 }
 
@@ -137,7 +79,7 @@ function stopListening() {
     isProcessing = false;
     toggleBtn.textContent = '🎤 Start Chat';
     toggleBtn.classList.remove('active');
-    statusIndicator.textContent = getStatus('clickToStart');
+    statusIndicator.textContent = 'Click to start';
     
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
@@ -209,7 +151,7 @@ function detectSpeechAndSilence() {
                 isRecording = true;
                 speechDetected = true;
                 startRecording();
-                statusIndicator.textContent = getStatus('recording');
+                statusIndicator.textContent = '🗣️ Recording... Speak clearly!';
                 console.log('Speech started, recording...');
             }
         } 
@@ -218,18 +160,18 @@ function detectSpeechAndSilence() {
             if (level > SILENCE_THRESHOLD) {
                 // Still speaking
                 speechDetected = true;
-                statusIndicator.textContent = getStatus('recordingLevel', { level: level.toFixed(2) });
+                statusIndicator.textContent = '🗣️ Recording... (level: ' + level.toFixed(2) + ')';
                 if (silenceTimer) {
                     clearTimeout(silenceTimer);
                     silenceTimer = null;
                 }
             } else if (speechDetected && !silenceTimer) {
                 // Silence started after speech
-                statusIndicator.textContent = getStatus('silenceDetected');
+                statusIndicator.textContent = '⏳ Silence detected, waiting 2s...';
                 silenceTimer = setTimeout(() => {
                     if (isListening && isRecording && !isProcessing) {
                         console.log('2 seconds of silence confirmed, sending...');
-                        statusIndicator.textContent = getStatus('processing');
+                        statusIndicator.textContent = '📤 Processing your request...';
                         isRecording = false;
                         speechDetected = false;
                         mediaRecorder.stop(); // This triggers onstop -> sendAudioToServer
@@ -246,7 +188,7 @@ function detectSpeechAndSilence() {
 }
 
 async function sendAudioToServer() {
-    statusIndicator.textContent = getStatus('sending');
+    statusIndicator.textContent = '📤 Sending to server...';
     
     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
     const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
@@ -273,7 +215,7 @@ async function sendAudioToServer() {
     });
     
     try {
-        statusIndicator.textContent = getStatus('waitingAI');
+        statusIndicator.textContent = '🤖 Waiting for AI response...';
         const response = await fetch('/', { method: 'POST', body: formData });
         
         if (response.ok) {
@@ -289,14 +231,14 @@ async function sendAudioToServer() {
         }
     } catch (err) {
         console.error('Upload failed:', err);
-        statusIndicator.textContent = getStatus('error');
+        statusIndicator.textContent = '❌ Error - Click to try again';
         isProcessing = false;
     }
 }
 
 async function playResponseAudio() {
     try {
-        statusIndicator.textContent = getStatus('playing');
+        statusIndicator.textContent = '🔊 Playing response...';
         
         const response = await fetch('uploads/chatgpt_sound.mp3?t=' + Date.now()); // Cache bust
         if (!response.ok) throw new Error('Failed to fetch audio');
@@ -327,14 +269,14 @@ async function playResponseAudio() {
         // Now ready to listen again
         if (isListening) {
             isProcessing = false;
-            statusIndicator.textContent = getStatus('waiting');
+            statusIndicator.textContent = '🎤 Waiting for you to speak loudly...';
         }
         
     } catch (err) {
         console.error('Error playing audio:', err);
         if (isListening) {
             isProcessing = false;
-            statusIndicator.textContent = getStatus('waiting');
+            statusIndicator.textContent = '🎤 Waiting for you to speak loudly...';
         }
     }
 }
