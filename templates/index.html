@@ -2,118 +2,210 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Flask App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>English Chat</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles2.css') }}">
-    <script defer data-domain="hello-app-432119.oa.r.appspot.com" src="https://plausible.io/js/script.js"></script>
     <style>
-        #toggleBtn {
-            padding: 20px 40px;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
             font-size: 18px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            background: linear-gradient(145deg, #4CAF50, #45a049);
+        }
+        
+        /* Header */
+        .header {
+            background: #2563eb;
             color: white;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        /* Chat History */
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .message {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 20px;
+            font-size: 20px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            background: #2563eb;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 6px;
+        }
+        
+        .ai-message {
+            background: white;
+            color: #1f2937;
+            align-self: flex-start;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .message-label {
+            font-size: 14px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+        
+        /* Controls Section */
+        .controls-section {
+            background: white;
+            border-top: 2px solid #e5e7eb;
+            padding: 20px;
+        }
+        
+        /* Style Selection */
+        .style-selector {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+        
+        .style-btn {
+            flex: 1;
+            padding: 12px 6px;
+            font-size: 16px;
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Tahoma', sans-serif;
+        }
+        
+        .style-btn.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+        
+        /* Mode Selection */
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            font-family: 'Tahoma', sans-serif;
+        }
+        
+        .mode-btn.selected {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        
+        /* Main Button */
+        .chat-controls {
+            text-align: center;
+        }
+        
+        #toggleBtn {
+            width: 100%;
+            padding: 20px;
+            font-size: 24px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            background: linear-gradient(145deg, #10b981, #059669);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
             transition: all 0.3s ease;
         }
-        #toggleBtn:hover { transform: scale(1.05); }
+        
+        #toggleBtn:active {
+            transform: scale(0.98);
+        }
+        
         #toggleBtn.active {
-            background: linear-gradient(145deg, #f44336, #d32f2f);
+            background: linear-gradient(145deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
             animation: pulse 1.5s infinite;
         }
+        
         @keyframes pulse {
-            0%, 100% { box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3); }
-            50% { box-shadow: 0 4px 25px rgba(244, 67, 54, 0.6); }
+            0%, 100% { box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+            50% { box-shadow: 0 4px 25px rgba(239, 68, 68, 0.6); }
         }
-        #statusIndicator { margin-top: 15px; font-size: 16px; color: #666; }
-        .chat-controls { text-align: center; margin: 30px 0; }
-        .language-selector { 
-            margin: 20px 0; 
-            padding: 15px; 
-            background: #f5f5f5; 
-            border-radius: 10px; 
+        
+        #statusIndicator {
+            margin-top: 12px;
+            font-size: 18px;
+            color: #6b7280;
+            text-align: center;
         }
-        .language-selector h3 { margin-bottom: 10px; }
-        .lang-btn {
-            padding: 10px 20px;
-            margin: 5px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            background: white;
-            font-size: 16px;
-            transition: all 0.2s;
+        
+        /* Empty state */
+        .empty-chat {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 20px;
+            margin-top: 40px;
         }
-        .lang-btn:hover { border-color: #4CAF50; }
-        .lang-btn.selected { 
-            border-color: #4CAF50; 
-            background: #4CAF50; 
-            color: white; 
-        }
-        .style-options { margin-top: 15px; }
     </style>
 </head>
 <body>
-    <h1>Chat history</h1>
-    <p id="user_updated">user said: {{user_input}}</p>
-    <p id="gpt_updated">chatgpt said: {{gpt_output}}</p>
+    <div class="header">گفتگوی انگلیسی</div>
     
-    <div class="chat-controls">
-        <button id="toggleBtn">🎤 Start Chat</button>
-        <p id="statusIndicator">Klicken Sie zum Starten</p>
-    </div>
-
-    <div class="language-selector">
-        <h3>🌐 Select Language</h3>
-        <button class="lang-btn selected" data-lang="german">🇩🇪 German</button>
-        <button class="lang-btn" data-lang="english">🇬🇧 English</button>
-        <button class="lang-btn" data-lang="farsi">🇮🇷 Farsi</button>
-        <input type="hidden" id="selectedLanguage" value="german">
-    </div>
-
-    <div class="chooseMonologueDialogue" id="monologueDialogue">
-        <input type="radio" id="mono1" name="mono" value="monologue" checked>
-        <label for="mono1">correction</label><br>
-        <input type="radio" id="mono2" name="mono" value="dialogue">
-        <label for="mono2">correction+conversation</label><br>
-        <input type="radio" id="mono3" name="mono" value="answer">
-        <label for="mono3">conversation</label><br>
+    <div class="chat-container" id="chatContainer">
+        <div class="empty-chat" id="emptyState">برای شروع دکمه را فشار دهید</div>
     </div>
     
-    <audio id="audioPlayer" controls></audio>
-
-    <div class="containerLanguage" id="radio-group">
-        <h3>Style</h3>
-        <input type="radio" id="style1" name="styleType" value="colloquial">
-        <label for="style1" id="styleLabel1">Umgangssprachlich</label><br>
-        <input type="radio" id="style2" name="styleType" value="native">
-        <label for="style2" id="styleLabel2">Muttersprachlich</label><br>
-        <input type="radio" id="style3" name="styleType" value="business">
-        <label for="style3" id="styleLabel3">Geschäftssprachlich</label><br>
-        <input type="radio" id="style4" name="styleType" value="minimal" checked>
-        <label for="style4" id="styleLabel4">Minimale Korrektur</label><br>
-    </div>
-
-    <div class="container">
-        <div class="range-group">
-            <label>creativity:</label>
-            <input type="range" id="creativity" min="0" max="1" step="0.01" value="0.1" oninput="this.nextElementSibling.value=this.value">
-            <output>0.1</output>
+    <div class="controls-section">
+        <div class="style-selector" id="styleSelector">
+            <button class="style-btn" data-style="colloquial">محاوره‌ای</button>
+            <button class="style-btn" data-style="native">روان</button>
+            <button class="style-btn" data-style="business">رسمی</button>
+            <button class="style-btn selected" data-style="minimal">حداقل تغییر</button>
         </div>
-        <div class="range-group">
-            <label>length:</label>
-            <input type="range" id="length" min="0" max="300" value="50" oninput="this.nextElementSibling.value=this.value">
-            <output>50</output>
+        
+        <div class="mode-selector" id="modeSelector">
+            <button class="mode-btn selected" data-mode="monologue">فقط اصلاح</button>
+            <button class="mode-btn" data-mode="dialogue">اصلاح + مکالمه</button>
+            <button class="mode-btn" data-mode="answer">فقط مکالمه</button>
         </div>
-        <div class="range-group">
-            <label>predictability:</label>
-            <input type="range" id="predictability" min="0" max="1" step="0.01" value="1" oninput="this.nextElementSibling.value=this.value">
-            <output>1</output>
+        
+        <div class="chat-controls">
+            <button id="toggleBtn">🎤 شروع</button>
+            <p id="statusIndicator">برای شروع کلیک کنید</p>
         </div>
     </div>
+    
+    <input type="hidden" id="selectedStyle" value="minimal">
+    <input type="hidden" id="selectedMode" value="monologue">
 
     <script src="{{ url_for('static', filename='js/recorder5.js') }}"></script>
 </body>

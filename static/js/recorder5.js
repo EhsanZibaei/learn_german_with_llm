@@ -1,112 +1,54 @@
-let mediaRecorder;
-let audioContext;
-let analyser;
-let stream;
-let isListening = false;
-let isProcessing = false; // New flag to block listening during processing/playback
-let silenceTimer = null;
+let mediaRecorder, audioContext, analyser, stream;
+let isListening = false, isProcessing = false;
+let silenceTimer = null, animationFrameId = null;
 let audioChunks = [];
-let animationFrameId = null;
 
-// Much higher threshold - requires loud, clear speech
 const SILENCE_THRESHOLD = 0.15;
-// Minimum volume to START recording (even higher)
 const SPEECH_START_THRESHOLD = 0.4;
-const SILENCE_DURATION = 2000; // 2 seconds
+const SILENCE_DURATION = 2000;
 
 const toggleBtn = document.getElementById('toggleBtn');
 const statusIndicator = document.getElementById('statusIndicator');
-const audioPlayer = document.getElementById('audioPlayer');
+const chatContainer = document.getElementById('chatContainer');
+const emptyState = document.getElementById('emptyState');
+const selectedStyleInput = document.getElementById('selectedStyle');
+const selectedModeInput = document.getElementById('selectedMode');
 
-// Language selection handling
-const langBtns = document.querySelectorAll('.lang-btn');
-const selectedLanguageInput = document.getElementById('selectedLanguage');
-
-const styleLabels = {
-    german: { colloquial: 'Umgangssprachlich', native: 'Muttersprachlich', business: 'Geschäftssprachlich', minimal: 'Minimale Korrektur' },
-    english: { colloquial: 'Colloquial', native: 'Native', business: 'Business', minimal: 'Closest Correct Form' },
-    farsi: { colloquial: 'محاوره‌ای', native: 'روان', business: 'رسمی', minimal: 'نزدیک‌ترین شکل صحیح' }
+// Status messages in Persian
+const status = {
+    clickToStart: 'برای شروع کلیک کنید',
+    waiting: '🎤 منتظر صحبت شما...',
+    recording: '🗣️ در حال ضبط...',
+    silenceDetected: '⏳ در حال گوش دادن',
+    processing: '📤 در حال پردازش...',
+    sending: '📤 ارسال به سرور...',
+    waitingAI: '🤖 منتظر پاسخ...',
+    playing: '🔊 پخش پاسخ...',
+    error: '❌ خطا - دوباره تلاش کنید',
+    micDenied: 'دسترسی به میکروفون رد شد'
 };
 
-const statusMessages = {
-    german: {
-        clickToStart: 'Klicken Sie zum Starten',
-        waiting: '🎤 Warten auf lautes Sprechen...',
-        recording: '🗣️ Aufnahme... Sprechen Sie deutlich!',
-        recordingLevel: '🗣️ Aufnahme... (Pegel: {level})',
-        silenceDetected: '⏳ Stille erkannt, warte 2s...',
-        processing: '📤 Verarbeite Ihre Anfrage...',
-        sending: '📤 Sende an Server...',
-        waitingAI: '🤖 Warte auf KI-Antwort...',
-        playing: '🔊 Spiele Antwort ab...',
-        error: '❌ Fehler - Klicken Sie zum erneuten Versuchen',
-        micDenied: 'Mikrofonzugriff verweigert'
-    },
-    english: {
-        clickToStart: 'Click to start',
-        waiting: '🎤 Waiting for you to speak loudly...',
-        recording: '🗣️ Recording... Speak clearly!',
-        recordingLevel: '🗣️ Recording... (level: {level})',
-        silenceDetected: '⏳ Silence detected, waiting 2s...',
-        processing: '📤 Processing your request...',
-        sending: '📤 Sending to server...',
-        waitingAI: '🤖 Waiting for AI response...',
-        playing: '🔊 Playing response...',
-        error: '❌ Error - Click to try again',
-        micDenied: 'Microphone access denied'
-    },
-    farsi: {
-        clickToStart: 'برای شروع کلیک کنید',
-        waiting: '🎤 منتظر صحبت بلند شما...',
-        recording: '🗣️ در حال ضبط... واضح صحبت کنید!',
-        recordingLevel: '🗣️ در حال ضبط... (سطح: {level})',
-        silenceDetected: '⏳ سکوت تشخیص داده شد، ۲ ثانیه صبر کنید...',
-        processing: '📤 در حال پردازش درخواست شما...',
-        sending: '📤 در حال ارسال به سرور...',
-        waitingAI: '🤖 منتظر پاسخ هوش مصنوعی...',
-        playing: '🔊 در حال پخش پاسخ...',
-        error: '❌ خطا - برای تلاش مجدد کلیک کنید',
-        micDenied: 'دسترسی به میکروفون رد شد'
-    }
-};
-
-let currentLang = 'german';
-
-function getStatus(key, replacements = {}) {
-    let msg = statusMessages[currentLang][key];
-    for (const [k, v] of Object.entries(replacements)) {
-        msg = msg.replace(`{${k}}`, v);
-    }
-    return msg;
-}
-
-langBtns.forEach(btn => {
+// Style button handlers
+document.querySelectorAll('.style-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        langBtns.forEach(b => b.classList.remove('selected'));
+        document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-        const lang = btn.dataset.lang;
-        currentLang = lang;
-        selectedLanguageInput.value = lang;
-        
-        // Update style labels based on language
-        document.getElementById('styleLabel1').textContent = styleLabels[lang].colloquial;
-        document.getElementById('styleLabel2').textContent = styleLabels[lang].native;
-        document.getElementById('styleLabel3').textContent = styleLabels[lang].business;
-        document.getElementById('styleLabel4').textContent = styleLabels[lang].minimal;
-        
-        // Update status indicator if not actively listening
-        if (!isListening) {
-            statusIndicator.textContent = getStatus('clickToStart');
-        }
+        selectedStyleInput.value = btn.dataset.style;
+    });
+});
+
+// Mode button handlers
+document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedModeInput.value = btn.dataset.mode;
     });
 });
 
 toggleBtn.addEventListener('click', async () => {
-    if (!isListening) {
-        await startListening();
-    } else {
-        stopListening();
-    }
+    if (!isListening) await startListening();
+    else stopListening();
 });
 
 async function startListening() {
@@ -117,224 +59,157 @@ async function startListening() {
         const source = audioContext.createMediaStreamSource(stream);
         source.connect(analyser);
         analyser.fftSize = 512;
-        analyser.smoothingTimeConstant = 0.8; // Smooth out noise spikes
+        analyser.smoothingTimeConstant = 0.8;
         
         isListening = true;
         isProcessing = false;
-        toggleBtn.textContent = '🔴 Stop Chat';
+        toggleBtn.textContent = '🔴 توقف';
         toggleBtn.classList.add('active');
-        statusIndicator.textContent = getStatus('waiting');
+        statusIndicator.textContent = status.waiting;
         
         detectSpeechAndSilence();
     } catch (err) {
-        console.error('Error accessing microphone:', err);
-        statusIndicator.textContent = getStatus('micDenied');
+        console.error('Mic error:', err);
+        statusIndicator.textContent = status.micDenied;
     }
 }
 
 function stopListening() {
     isListening = false;
     isProcessing = false;
-    toggleBtn.textContent = '🎤 Start Chat';
+    toggleBtn.textContent = '🎤 شروع';
     toggleBtn.classList.remove('active');
-    statusIndicator.textContent = getStatus('clickToStart');
+    statusIndicator.textContent = status.clickToStart;
     
-    if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-    }
-    if (silenceTimer) {
-        clearTimeout(silenceTimer);
-        silenceTimer = null;
-    }
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
-    }
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-    }
-    if (audioContext && audioContext.state !== 'closed') {
-        audioContext.close();
-    }
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    if (silenceTimer) clearTimeout(silenceTimer);
+    if (mediaRecorder?.state !== 'inactive') mediaRecorder?.stop();
+    stream?.getTracks().forEach(t => t.stop());
+    if (audioContext?.state !== 'closed') audioContext?.close();
 }
 
 function startRecording() {
     audioChunks = [];
     mediaRecorder = new MediaRecorder(stream);
     mediaRecorder.start();
-    
-    mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunks.push(e.data);
-    };
-    
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
     mediaRecorder.onstop = async () => {
         if (audioChunks.length > 0 && isListening && !isProcessing) {
-            isProcessing = true; // Block any further listening
+            isProcessing = true;
             await sendAudioToServer();
         }
     };
 }
 
 function getAudioLevel() {
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(dataArray);
-    // Use RMS for more accurate level detection
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(data);
     let sum = 0;
-    for (let i = 0; i < dataArray.length; i++) {
-        const normalized = dataArray[i] / 255;
-        sum += normalized * normalized;
-    }
-    return Math.sqrt(sum / dataArray.length);
+    for (let i = 0; i < data.length; i++) sum += (data[i] / 255) ** 2;
+    return Math.sqrt(sum / data.length);
 }
 
 function detectSpeechAndSilence() {
-    let isRecording = false;
-    let speechDetected = false;
+    let isRecording = false, speechDetected = false;
     
-    function checkAudio() {
+    function check() {
         if (!isListening) return;
-        
-        // Skip all audio detection while processing or playing response
-        if (isProcessing) {
-            animationFrameId = requestAnimationFrame(checkAudio);
-            return;
-        }
+        if (isProcessing) { animationFrameId = requestAnimationFrame(check); return; }
         
         const level = getAudioLevel();
         
-        // State: Waiting for speech to start
         if (!isRecording) {
             if (level > SPEECH_START_THRESHOLD) {
-                // Speech detected! Start recording
                 isRecording = true;
                 speechDetected = true;
                 startRecording();
-                statusIndicator.textContent = getStatus('recording');
-                console.log('Speech started, recording...');
+                statusIndicator.textContent = status.recording;
             }
-        } 
-        // State: Currently recording
-        else {
+        } else {
             if (level > SILENCE_THRESHOLD) {
-                // Still speaking
                 speechDetected = true;
-                statusIndicator.textContent = getStatus('recordingLevel', { level: level.toFixed(2) });
-                if (silenceTimer) {
-                    clearTimeout(silenceTimer);
-                    silenceTimer = null;
-                }
+                if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
             } else if (speechDetected && !silenceTimer) {
-                // Silence started after speech
-                statusIndicator.textContent = getStatus('silenceDetected');
+                statusIndicator.textContent = status.silenceDetected;
                 silenceTimer = setTimeout(() => {
                     if (isListening && isRecording && !isProcessing) {
-                        console.log('2 seconds of silence confirmed, sending...');
-                        statusIndicator.textContent = getStatus('processing');
+                        statusIndicator.textContent = status.processing;
                         isRecording = false;
                         speechDetected = false;
-                        mediaRecorder.stop(); // This triggers onstop -> sendAudioToServer
+                        mediaRecorder.stop();
                     }
                     silenceTimer = null;
                 }, SILENCE_DURATION);
             }
         }
-        
-        animationFrameId = requestAnimationFrame(checkAudio);
+        animationFrameId = requestAnimationFrame(check);
     }
-    
-    checkAudio();
+    check();
+}
+
+function addMessage(text, isUser) {
+    if (emptyState) emptyState.remove();
+    const msg = document.createElement('div');
+    msg.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+    msg.innerHTML = `<div class="message-label">${isUser ? 'You' : 'AI'}</div>${text}`;
+    chatContainer.appendChild(msg);
+    // Always force scroll to bottom after adding message
+    setTimeout(() => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 50);
 }
 
 async function sendAudioToServer() {
-    statusIndicator.textContent = getStatus('sending');
+    statusIndicator.textContent = status.sending;
     
     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
     const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
     const formData = new FormData();
     formData.append('audio', audioFile);
-    
-    formData.append('temperature', document.getElementById('creativity').value);
-    formData.append('max_tokens', document.getElementById('length').value);
-    formData.append('top_p', document.getElementById('predictability').value);
-    
-    // Selected language (german, english, farsi)
-    formData.append('selectedLanguage', document.getElementById('selectedLanguage').value);
-    
-    // Style type (colloquial, native, business)
-    const styleRadios = document.querySelectorAll('input[name="styleType"]');
-    styleRadios.forEach(radio => {
-        if (radio.checked) formData.append('styleType', radio.value);
-    });
-    
-    // Response method (monologue, dialogue, answer)
-    const respondTypes = document.querySelectorAll('#monologueDialogue input[type="radio"]');
-    respondTypes.forEach(r => {
-        if (r.checked) formData.append('respondMethod', r.value);
-    });
+    formData.append('styleType', selectedStyleInput.value);
+    formData.append('respondMethod', selectedModeInput.value);
     
     try {
-        statusIndicator.textContent = getStatus('waitingAI');
+        statusIndicator.textContent = status.waitingAI;
         const response = await fetch('/', { method: 'POST', body: formData });
         
         if (response.ok) {
-            const data = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(data, 'text/html');
-            document.getElementById("user_updated").innerHTML = doc.getElementById("user_updated").innerHTML;
-            document.getElementById("gpt_updated").innerHTML = doc.getElementById("gpt_updated").innerHTML;
-            
+            const data = await response.json();
+            if (data.user_input) addMessage(data.user_input, true);
+            if (data.gpt_output) addMessage(data.gpt_output, false);
             await playResponseAudio();
-        } else {
-            throw new Error('Server error');
-        }
+        } else throw new Error('Server error');
     } catch (err) {
-        console.error('Upload failed:', err);
-        statusIndicator.textContent = getStatus('error');
+        console.error('Error:', err);
+        statusIndicator.textContent = status.error;
         isProcessing = false;
     }
 }
 
 async function playResponseAudio() {
     try {
-        statusIndicator.textContent = getStatus('playing');
-        
-        const response = await fetch('uploads/chatgpt_sound.mp3?t=' + Date.now()); // Cache bust
-        if (!response.ok) throw new Error('Failed to fetch audio');
+        statusIndicator.textContent = status.playing;
+        const response = await fetch('uploads/chatgpt_sound.mp3?t=' + Date.now());
+        if (!response.ok) throw new Error('Audio fetch failed');
         
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
-        audioPlayer.src = audioUrl;
+        const audio = new Audio(audioUrl);
         
-        // Wait for audio to fully load
-        await new Promise((resolve, reject) => {
-            audioPlayer.oncanplaythrough = resolve;
-            audioPlayer.onerror = reject;
-        });
+        await audio.play();
+        await new Promise(resolve => { audio.onended = resolve; });
+        URL.revokeObjectURL(audioUrl);
         
-        await audioPlayer.play();
-        
-        // Wait for audio to finish playing completely
-        await new Promise((resolve) => {
-            audioPlayer.onended = () => {
-                URL.revokeObjectURL(audioUrl);
-                resolve();
-            };
-        });
-        
-        // Small delay after audio ends before listening again
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Now ready to listen again
+        await new Promise(r => setTimeout(r, 500));
         if (isListening) {
             isProcessing = false;
-            statusIndicator.textContent = getStatus('waiting');
+            statusIndicator.textContent = status.waiting;
         }
-        
     } catch (err) {
-        console.error('Error playing audio:', err);
+        console.error('Audio error:', err);
         if (isListening) {
             isProcessing = false;
-            statusIndicator.textContent = getStatus('waiting');
+            statusIndicator.textContent = status.waiting;
         }
     }
 }
